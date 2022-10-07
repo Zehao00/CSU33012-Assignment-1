@@ -3,6 +3,7 @@ import java.util.Stack;
 public class Calculator 
 {
     int finalResult = 0;
+    int bracket = 0;
 	public Calculator (String expression)
 	{
 		String [] exp = expression.split("");             //Turn the expression into string array (e.g. "12+1" -> ["1", "2", "+", "1"])
@@ -21,7 +22,7 @@ public class Calculator
 					number = "";                             //reset
 				}
 				
-				if(operator.empty() == false && operator.peek().equals("*"))  //Multiplication has the first priority in this calculator
+				while(operator.empty() == false && operator.peek().equals("*"))  //Multiplication has the first priority in this calculator
 				{
 					int number1 = operand.pop();                              //get the first number
 					int number2 = operand.pop();                              //get the second number
@@ -30,7 +31,7 @@ public class Calculator
 					operator.pop();                                           //pop "*" out of operator stack
 				}
 				
-				if(operator.empty() == false && operator.peek().equals("-"))  //Subtraction has the second priority in this calculator
+				while(operator.empty() == false && operator.peek().equals("-"))  //Subtraction has the second priority in this calculator
 				{
 					int number1 = operand.pop();                              //get the first number
 					int number2 = operand.pop();                              //get the second number
@@ -38,7 +39,7 @@ public class Calculator
 					operand.push(result);                                     //push the result into operand stack
 					operator.pop();                                           //pop "-" out of operator stack
 				}
-				operator.push("+");                                           //push "+" into operator stack
+				operator.push("+");                                           //push "+" into operator stack 
 			}
 			
 			else if(exp[i].equals("-"))                                       //check if the current char is "-"
@@ -49,13 +50,22 @@ public class Calculator
 					number = "";                                              //reset
 				}
 				
-				if(operator.empty() == false && operator.peek().equals("*"))  //Multiplication has the first priority in this calculator
+				while(operator.empty() == false && operator.peek().equals("*"))  //Multiplication has the first priority in this calculator
 				{
 					int number1 = operand.pop();                              //get the first number
 					int number2 = operand.pop();                              //get the second number
 					int result = multiplication(number1, number2);            //do the multiplication
 					operand.push(result);                                     //push the result into operand stack
 					operator.pop();                                           //pop "*" out of operator stack
+				}
+				
+				while(operator.empty() == false && operator.peek().equals("-"))//Subtraction has the second priority in this calculator
+				{
+					int number1 = operand.pop();                              //get the first number
+					int number2 = operand.pop();                              //get the second number
+					int result = subtraction(number2, number1);               //do the subtraction
+					operand.push(result);                                     //push the result into operand stack
+					operator.pop();                                           //pop "-" out of operator stack
 				}
 				operator.push("-");                                           //push "-" into operator stack
 			}
@@ -69,13 +79,77 @@ public class Calculator
 				}
 					operator.push(exp[i]);	                                  //push "*" into operator stack
 			}
+			else if(exp[i].equals("("))
+			{
+				if(exp[i+1].equals("-"))
+				{
+				 i = i + 1;
+				}
+				else
+				{
+					operator.push("(");
+					bracket = 1;
+				}
+			}
+			else if(exp[i].equals(")"))
+			{
+				if(bracket == 0)
+				{
+				if(number != "")                                              //check if we catch a operand
+				{
+					operand.push((0-Integer.parseInt(number)));                   //we get the complete number, push it into operand stack
+					number = "";                                              //reset
+				}
+				}
+				else
+				{
+					if(number != "")                                              //check if we catch a operand
+					{
+						operand.push(Integer.parseInt(number));                   //we get the complete number, push it into operand stack
+						number = "";                                              //reset
+					}
+					 
+					while(!operator.peek().equals("("))
+					{
+						String tmp = operator.pop();                                      //pop the last operator out of stack
+						
+						if(tmp.equals("+"))                                               //if the last operator is "+"
+						{
+							int number1 = operand.pop();                                  //get the first number
+							int number2 = operand.pop();                                  //get the second number
+							int result = addition(number1, number2);                      //do the addition
+							operand.push(result);                                         //push the result into operand stack
+						}
+						else if(tmp.equals("-"))                                          //if the last operator is "-"
+						{
+							int number1 = operand.pop();                                  //get the first number
+							int number2 = operand.pop();                                  //get the second number
+							int result = subtraction(number2, number1);                   //do the subtraction
+							operand.push(result);                                         //push the result into operand stack
+						}
+						else if(tmp.equals("*"))                                          //if the last operator is "*"
+						{
+							int number1 = operand.pop();                                  //get the first number
+							int number2 = operand.pop();                                  //get the second number
+							int result = multiplication(number1, number2);                //do the multiplication
+							operand.push(result);                                         //push the result into operand stack
+						}
+					}
+					operator.pop();
+					bracket = 0;
+				}
+			}
 			else
 			{
 				number = number + exp[i];                                     //concatenate every char of the integer together to get the complete number
 			}
 		}
+		  
+		if(number != "")
+		{
            operand.push(Integer.parseInt(number));                            //we get the complete number, push it into operand stack
            number = "";                                                       //reset
+		}
            
     	while(operator.empty() == false)                                      //loop until operator stack don't contain any operator
 		{
