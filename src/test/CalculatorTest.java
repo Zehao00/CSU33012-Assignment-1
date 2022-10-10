@@ -27,5 +27,12 @@ class CalculatorTest {
         assertEquals("2", calc.Calculator("1+1"));
         assertEquals("16", calc.Calculator("2*8"));
         assertEquals("-11", calc.Calculator("3-2*7"));
+        assertEquals("Incorrect expression", calc.Calculator("3/2"));
+        assertEquals("Incorrect expression", calc.Calculator("a"));
+        assertEquals("Incorrect expression", calc.Calculator("231+d"));
+        assertEquals("Incorrect expression", calc.Calculator("33d"));
+        assertEquals("Incorrect expression", calc.Calculator("6 "));
+        assertEquals("Incorrect expression", calc.Calculator(""));
+        assertEquals("Incorrect expression", calc.Calculator(" "));
     }
 }
